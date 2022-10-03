@@ -1,1 +1,1 @@
-# Berkeley CS 61A Labs
+# Berkeley CS 61A Labs - Summer 2020
