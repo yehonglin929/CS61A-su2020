@@ -1,6 +1,5 @@
 """CS 61A Presents The Game of Hog."""
 
-from pickletools import string1
 from numpy import roll, take
 from dice import six_sided, four_sided, make_test_dice
 from ucb import main, trace, interact
@@ -147,6 +146,7 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
                 score0, score1 = score1, score0
             dice1 = roll
         who = other(who)
+        say = say(score0, score1)
     # print(score0, score1)
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
@@ -238,6 +238,20 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+    def say(score0, score1):
+        highest = running_high
+        if who == 1:
+            change_score = score1 - last_score
+            current_score = score1
+        else:
+            change_score = score0 - last_score
+            current_score = score0
+        if change_score > highest:
+            highest = change_score
+            print("{} point(s)! That's the biggest gain yet for Player {}".format(highest, who))
+        return announce_highest(who, current_score, highest)
+    return say
+            
     # END PROBLEM 7
 
 
@@ -277,6 +291,12 @@ def make_averaged(original_function, trials_count=1000):
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def inner(*args):
+        total, k = 0, 0
+        while k < trials_count:
+            total, k = total + original_function(*args), k + 1
+        return total / trials_count
+    return inner
     # END PROBLEM 8
 
 
@@ -291,6 +311,15 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    max_aver = -1
+    max_num = -1
+    averaged_roll_dice = make_averaged(roll_dice, trials_count)
+    for i in range(1, 11):
+        aver = averaged_roll_dice(i, dice)
+        if aver > max_aver:
+            max_aver = aver
+            max_num = i
+    return max_num
     # END PROBLEM 9
 
 
@@ -340,7 +369,12 @@ def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    added_score = free_bacon(opponent_score)
+    if added_score >= cutoff:
+        return 0
+    else:
+        return num_rolls
+    # return 6  # Replace this statement
     # END PROBLEM 10
 
 
@@ -350,7 +384,17 @@ def swap_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     non-beneficial swap. Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    beneficial = False
+    new_score = score + free_bacon(opponent_score)
+    if is_swap(new_score, opponent_score):
+        if opponent_score > new_score:
+            beneficial = True
+        new_score = opponent_score
+    if beneficial or new_score - score >= cutoff:
+        return 0
+    else:
+        return num_rolls
+    # return 6  # Replace this statement
     # END PROBLEM 11
 
 
